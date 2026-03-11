@@ -1,1 +1,1194 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚾ Trainer C Lizenz Baseball – Lern-App</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f3ef;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: #e5e1d8;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --radius: 16px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* NAVIGATION */
+  #nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(245,243,239,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  #nav-back {
+    display: none;
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; font-weight: 600; color: var(--muted);
+    font-family: inherit;
+    padding: 6px 10px; border-radius: 8px;
+    transition: background 0.15s;
+  }
+  #nav-back:hover { background: var(--border); }
+  #nav-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px; color: var(--text);
+  }
+  #nav-badge {
+    margin-left: auto;
+    background: var(--text); color: #fff;
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  /* VIEWS */
+  .view { display: none; padding: 24px; max-width: 840px; margin: 0 auto; animation: fadeUp 0.2s ease; }
+  .view.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* HOME */
+  .hero {
+    text-align: center; padding: 36px 0 28px;
+  }
+  .hero-ball { font-size: 56px; line-height: 1; margin-bottom: 12px; }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px; font-weight: 400; color: var(--text);
+    margin-bottom: 6px;
+  }
+  .hero p { color: var(--muted); font-size: 14px; }
+
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px; margin-bottom: 20px;
+  }
+  .module-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    cursor: pointer; text-align: left;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    box-shadow: var(--shadow);
+  }
+  .module-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+  .module-card .emoji { font-size: 26px; margin-bottom: 10px; }
+  .module-card .mod-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .module-card .mod-count { font-size: 12px; color: var(--muted); }
+
+  .flashcard-btn {
+    width: 100%; padding: 16px;
+    background: var(--text); color: #fff;
+    border: none; border-radius: var(--radius);
+    font-size: 16px; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .flashcard-btn:hover { opacity: 0.85; }
+
+  /* MODULE VIEW */
+  .module-header {
+    border-radius: var(--radius); padding: 22px 24px;
+    margin-bottom: 20px;
+  }
+  .module-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px; font-weight: 400; margin-bottom: 4px;
+  }
+  .module-header p { font-size: 13px; color: var(--muted); }
+
+  .topic-list { display: flex; flex-direction: column; gap: 10px; }
+  .topic-btn {
+    background: var(--card); border: 2px solid var(--border);
+    border-radius: 12px; padding: 16px 20px;
+    cursor: pointer; text-align: left;
+    font-size: 14px; font-weight: 600; font-family: inherit;
+    color: var(--text); transition: border-color 0.15s, transform 0.1s;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topic-btn:hover { transform: translateX(4px); }
+  .topic-btn span { color: var(--muted); font-size: 16px; }
+
+  /* TOPIC VIEW */
+  #topic-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; font-weight: 400;
+    margin-bottom: 20px; line-height: 1.3;
+  }
+  .content-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 28px;
+  }
+  .content-block { margin-bottom: 22px; }
+  .content-block:last-child { margin-bottom: 0; }
+  .content-h3 {
+    font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 2px solid currentColor;
+    opacity: 0.9;
+  }
+  .content-p {
+    font-size: 14px; color: #374151;
+    line-height: 1.75; margin-bottom: 5px;
+  }
+  .content-li {
+    display: flex; gap: 10px;
+    margin-bottom: 5px;
+  }
+  .content-li-dot { flex-shrink: 0; font-weight: 700; margin-top: 1px; }
+  .content-li-text { font-size: 14px; color: #374151; line-height: 1.65; }
+  strong { font-weight: 700; color: var(--text); }
+
+  /* FLASHCARDS */
+  .fc-header { text-align: center; margin-bottom: 28px; }
+  .fc-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; font-weight: 400; margin-bottom: 4px;
+  }
+  .fc-header p { color: var(--muted); font-size: 14px; }
+  .fc-progress-bar {
+    height: 4px; background: var(--border);
+    border-radius: 2px; margin-bottom: 24px; overflow: hidden;
+  }
+  .fc-progress-fill {
+    height: 100%; border-radius: 2px;
+    background: var(--text);
+    transition: width 0.3s ease;
+  }
+  .fc-card {
+    background: var(--card);
+    border: 2px solid #3b4ed8;
+    border-radius: 20px;
+    padding: 36px 28px;
+    min-height: 200px;
+    cursor: pointer; text-align: center;
+    transition: all 0.25s;
+    margin-bottom: 24px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    user-select: none;
+  }
+  .fc-card.revealed {
+    border-color: #16a34a;
+    background: #f0fdf4;
+  }
+  .fc-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .fc-text {
+    font-size: 17px; line-height: 1.6; color: var(--text);
+    max-width: 480px;
+  }
+  .fc-text.question { font-weight: 700; }
+  .fc-text.answer { font-weight: 400; }
+  .fc-hint { font-size: 12px; color: var(--muted); margin-top: 14px; }
+  .fc-actions { display: flex; gap: 12px; }
+  .fc-btn {
+    padding: 14px; border: none; border-radius: 12px;
+    cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .fc-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .fc-btn.secondary { flex: 1; background: #f1f5f9; color: var(--text); }
+  .fc-btn.shuffle { background: #f1f5f9; color: var(--text); padding: 14px 18px; }
+  .fc-btn.primary { flex: 1; background: var(--text); color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav id="nav">
+  <button id="nav-back" onclick="goBack()">← Zurück</button>
+  <div id="nav-title">⚾ Trainer C Lizenz</div>
+  <div id="nav-badge">DBA 2024</div>
+</nav>
+
+<!-- HOME VIEW -->
+<div id="view-home" class="view active">
+  <div class="hero">
+    <div class="hero-ball">⚾</div>
+    <h1>Trainer C Lizenz Baseball</h1>
+    <p>Alle Themen der DBA Ausbildung · Lern-App 2024</p>
+  </div>
+  <div class="modules-grid" id="modules-grid"></div>
+  <button class="flashcard-btn" onclick="startFlashcards()">🃏 Karteikarten-Übung starten (20 Karten)</button>
+</div>
+
+<!-- MODULE VIEW -->
+<div id="view-module" class="view">
+  <div class="module-header" id="module-header">
+    <h2 id="module-title"></h2>
+    <p id="module-desc"></p>
+  </div>
+  <div class="topic-list" id="topic-list"></div>
+</div>
+
+<!-- TOPIC VIEW -->
+<div id="view-topic" class="view">
+  <h1 id="topic-title"></h1>
+  <div class="content-card" id="topic-content"></div>
+</div>
+
+<!-- FLASHCARD VIEW -->
+<div id="view-flashcards" class="view">
+  <div class="fc-header">
+    <h2>🃏 Karteikarten</h2>
+    <p id="fc-counter">1 / 20</p>
+  </div>
+  <div class="fc-progress-bar"><div class="fc-progress-fill" id="fc-progress"></div></div>
+  <div class="fc-card" id="fc-card" onclick="toggleAnswer()">
+    <div class="fc-label" id="fc-label">Frage</div>
+    <div class="fc-text question" id="fc-text"></div>
+    <div class="fc-hint" id="fc-hint">Tippen um Antwort zu sehen</div>
+  </div>
+  <div class="fc-actions">
+    <button class="fc-btn secondary" onclick="fcNav(-1)">← Zurück</button>
+    <button class="fc-btn shuffle" onclick="shuffleCards()" title="Mischen">🔀</button>
+    <button class="fc-btn primary" onclick="fcNav(1)">Weiter →</button>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  modules: [
+    {
+      id: "sportgeschichte", emoji: "🏛️", name: "Sportgeschichte", color: "#7C3AED", bg: "#EDE9FE",
+      topics: [
+        { title: "Was ist Sportgeschichte?", content: `**Definitionen & Grundbegriffe**
+Sportgeschichte = historische Abläufe und gesellschaftliche Veränderungen im Sport.
+
+**Quellenarten**
+- **Primärquelle:** Originale Funde (Ausgrabungen von Stadien, antike Objekte, Schriftberichte von Tacitus über Germanen, Turnvereine)
+- **Sekundärquelle:** Schriften und Objekte der heutigen Zeit ÜBER die Vergangenheit
+- **Hermeneutik:** Wissenschaftstheoretische Methode des sporthistorischen Erkennens
+- **Analogieschluss:** Schließen vom Bekannten auf das Unbekannte (z.B. von heutigen Naturvölkern auf Urvölker)
+
+**Wichtige Werke**
+- Horst Überhorst: Geschichte der Leibesübungen (1978–90)
+- Ingomar Weiler: Der Sport bei den Völkern der alten Welt
+- Vieth: Versuch einer Enzyklopädie der Leibesübungen (1793) – frühstes deutschsprachiges sporthistorisches Buch
+- Spolit: Datenbank Sportliteratur
+
+**Ursprungstheorien**
+- **Carl Diem:** Alle Leibesübungen waren ursprünglich kultisch (Schamanen schlüpften in Tierfelle)
+- **W. Eichel:** Dialektischer Materialismus – alle Leibesübungen aus dem Arbeitsprozess
+- **Eppensteiner:** Religiöse, militärische, soziale, politische, materielle und pädagogische Bedürfnisse → Ursport
+
+**Funktionen des Sports**
+- Militärische / Gesundheitliche / Politische / Sozialisations- / Ökonomische / Unterhaltungs- / Freizeitfunktion / Erzieherische Funktion` },
+
+        { title: "Frühe Funde & Epochen", content: `**Wichtige frühe Funde**
+- Ca. 12.000 v. Chr.: Tanzende Frauen auf Schiefertafeln
+- Mesopotamien (Irak): Gegossenes Ringerpaar ca. 3500 v.Chr.
+- „Pferdebuch" 2000 v. Chr.: Methodisches Training über 170 Tage (Schwitzgalopp, Wärmebäder)
+- Stierspringer in Kreta 1200 v. Chr. (Sieg des Verstands über rohe Kraft)
+- Homer: 23. Buch der Ilias (~800 v. Chr.): Wagenrennen, Faustkampf, Diskus, Speer, Wettlauf, Bogenschießen
+
+**Wendepunkte im Sport**
+- Mitte 18. Jh.: Leibesübungen durch Aufklärung
+- Mitte 19. Jh.: Erster leistungsbezogener Sport in England
+- 1972 München: Erste professionelle Ansätze erkennbar
+- 1984 L.A.: Amateurwesen aufgehoben
+
+**17 Epochen der Leibesübungen**
+1. Kretisch-mykenische Epoche (1600–1200 v.Chr.)
+2. Archaisches Zeitalter (800–500 v.Chr.)
+3. Klassik (500–300 v.Chr.)
+4. Hellenistische Epoche (336–30 v.Chr.)
+5. Frühes Römertum (500–200 v.Chr.)
+6. Hellenistisch-römische Epoche (200 v.Chr.–500 n.Chr.)
+7. Frühes Mittelalter (500–1000 n.Chr.)
+8. Hohes Mittelalter (1000–1300 n.Chr.)
+9. Spätes Mittelalter (1300–1500 n.Chr.)
+10. Humanismus (1400–1600)
+11. Absolutismus (1600–1800)
+12. Aufklärungszeit (1680–1800)
+13. Idealismus & nationale Bewegung (1780–1815)
+14. Entstehung des Sports im 18./19. Jh.
+15. Wende 19. zum 20. Jh.
+16. Zwischen den Weltkriegen
+17. Sport nach 1945` },
+
+        { title: "Antike Olympische Spiele", content: `**4 Panhellenische Spiele**
+- **Olympia** (Zeusheiligtum) – 776 v.Chr. erste belegte Olympiade
+- **Delphi** (Apollonheiligtum) – Pytische Spiele, ab 586 v.Chr.
+- **Nemea** (Zeusheiligtum) – ab 573 v.Chr.
+- **Isthmia** (Poseidonheiligtum) – ab 580 v.Chr.
+
+**Entwicklung der olympischen Disziplinen**
+- 1. Olympiade (776): Stadionlauf (192m)
+- 14. (724): Doppellauf (Diaulos)
+- 15. (720): Langlauf (Dolichos) + Nacktlaufen eingeführt
+- 18. (708): Pentathlon + Ringkampf (Diskus, Speer, Faustkampf, Stadionlauf, Weitsprung)
+- 23. (688): Faustkampf; 25. (680): Wagengespann (4 Pferde)
+- 33. (648): Pferderennen + Pankration (Allkampf)
+
+**Trainer-Bezeichnungen der Antike**
+- **Aleipten:** Trainer oder Masseur
+- **Isoaleipten:** Reha-Trainer (Heiltrainer)
+- **Paidotriben:** Knabenantreiber
+- **Gymnasten:** Hochleistungstrainer im Gymnasium
+
+**Tetradensystem (4-Tage-Training)**
+- Tag 1: Kurze, hochintensive vorbereitende Belastung
+- Tag 2: Maximale Belastung / Wettkampfsimulation
+- Tag 3: Lockeres Entspannungstraining
+- Tag 4: Mittelschwere Belastung → Pause
+
+**Wichtige Regeln & Fakten**
+- **Ekecheiria** = Götterfrieden, freies Geleit für alle Teilnehmer
+- 30.000–40.000 Zuschauer; Alkoholverbot im Stadion
+- Nur freie Griechen (nicht Barbaros = Fremde oder Unfreie)
+- Frauen: verboten (Androhung Todesstrafe in Olympia)
+- Sieger: Olivenranz, der mit goldener Sichel abgeschnitten wurde
+- 393 n.Chr.: Theodosius I verbietet OS als heidnischen Kult
+- Doping bereits in der Antike: gehackte Stierhoden (Androgene)
+
+**Untergang der OS nach Ingomar Weiler**
+1. Aufstieg des Christentums (heidnisches Fest)
+2. Ökonomische Krise / Professionalisierung
+3. Sinkendes Gemeinschaftsgefühl, Naturkatastrophen
+4. Niedergang der griechischen Polis, Römer
+5. Kulturmorphologischer Verfall (schleichend)
+6. Einfluss der Völkerwanderung` },
+
+        { title: "Turnbewegung & Philanthropen", content: `**Philanthropen (17.–19. Jh.) = „Menschenfreunde"**
+Pädagogische Reformbewegung, die Leibesübungen als integralen Bestandteil der Bildung wiederentdeckte. Grundsätze aus der Aufklärung (Locke, Rousseau). Schufen den Übergang von Leibesübungen zu Leibeserziehung.
+
+**Hauptvertreter**
+- **Basedow** (1724–1790): Begründer der Philanthropen; gründete 1774 erstes Philanthropinum in Dessau; Hauptwerk „Elementarwerk"; Dessauer Graben (vom Leichten zum Schweren)
+- **Salzmann** (1744–1811): Gründete 1784 Philanthropinum in Schnepfental; forderte „täglich ein Stündchen Sport"
+- **Guts Muths** (1759–1839): „Erz- und Großvater" des deutschen Schulturnens; Hauptwerk „Gymnastik für die Jugend" (1793)
+- **Pestalozzi** (1746–1827): „Systematiker der Leibeserziehung"; Elementargymnastik; forderte Volksschulen für alle
+- **Vieth** (1763–1830): Erster Sportwissenschaftler der Neuzeit; „Versuch einer Enzyklopädie der Leibesübungen"
+
+**Guts Muths 6 Grundsätze**
+1. Gesundheit des Leibes → ungetrübte Heiterkeit des Geistes
+2. Abgehärteter Leib verbessert Sinnlichkeit
+3. Stärke und Geschick ermöglichen mutiges Handeln
+4. Körpertätigkeit fördert Geistestätigkeit
+5. Schärfung der Sinne → Schärfung der Denkkraft
+6. Leibesübungen in Naturverbundenheit
+
+**Turnvater Friedrich Ludwig Jahn (1778–1852)**
+- Begründer der deutschen Turnbewegung
+- 1811: Erster Turnplatz in Berlin-Hasenheide (ca. 400 Turner)
+- 1812: Erfindung von Barren und Reck
+- Hauptwerke: „Deutsches Volkstum" (1810), „Deutsche Turnkunst" (1816)
+- 1819–1842: Turnsperre durch Karlsbader Beschlüsse (nach Wartburgfest + Ermordung Kotzebues)
+- Motto: „Frisch, frei, fröhlich, fromm"
+
+**Adolf Spieß (1819–1858):** Vater des Schulturnens; führte Mädchenturnen ein; tägliche Turnstunde
+**Per Henrik Ling (1776–1839):** Schwedische Gymnastik – hygienisch, pädagogisch, militärisch, ästhetisch` },
+
+        { title: "Moderne Olympische Spiele", content: `**Pierre de Coubertin (1863–1937)**
+- Gründer der modernen Olympischen Spiele
+- Wiederbelebung am 23.6.1894 in Paris
+- Ziel: „Rebronzer la France" – Frankreich nach Niederlage 1870/71 stärken
+- Führte ein: Diskuswerfen, Marathonlauf, Modernen Fünfkampf (1909: Springreiten, Degenfechten, Schwimmen, Schießen, Geländelauf)
+- **Olympismus** = olympische Philosophie Coubertins
+- 1912: Goldmedaille für „Ode an den Sport" (unter Pseudonym)
+
+**5 Merkmale olympischer Erziehung**
+1. Harmonische Ausbildung des ganzen Menschen
+2. Menschliche Vervollkommnung über hohe Leistung
+3. Freiwillige Bindung an Fairplay und Chancengleichheit
+4. Friedensgedanke und Völkerverständigung
+5. Förderung emanzipatorischer Entwicklung
+
+**Wichtige Olympiaden**
+- **1896 Athen:** Erste moderne OS; 300 Sportler, 13 Nationen, 43 Wettbewerbe
+- **1900 Paris / 1904 St. Louis:** Im Rahmen der Weltausstellung – kaum Beachtung
+- **1908 London:** Erstmals Frauen (Bogenschießen, Turnen); Bischof Talbot: „Das Wichtigste ist die Teilnahme"
+- **1912 Stockholm:** Endgültiger Durchbruch; erstmals Moderner Fünfkampf; erstmals Frauen im Schwimmen
+- **1920 Antwerpen:** Erstmals Olympische Fahne mit 5 Ringen; Kriegsverlierer ausgeschlossen
+- **1924 Paris:** Erstmals Olympisches Dorf; Radioübertragung; Zeitlupenkamera
+- **1936 Berlin:** Fackellauf mit 3000 Läufern; Jesse Owens 4 Gold; erstmals Fernsehen
+- **1952 Helsinki:** Erstmals UdSSR; Emil Zátopek – 5000m, 10000m, Marathon
+- **1972 München:** Terroranschlag auf israelisches Team; Mark Spitz 7 Gold; erste Dopingkontrollen verpflichtend
+- **1980 Moskau:** US-Boykott (Afghanistan); Marita Koch 400m 48,88 sec (bis heute Weltrekord)
+- **1984 L.A.:** Gegenboykott Ostblock; Carl Lewis 4 Gold; erstmals kommerziell finanziert
+- **1992 Barcelona:** Erste OS ohne Weltpolitik seit 1932; Profis offiziell zugelassen` },
+
+        { title: "Germanen, Römer & Mittelalter", content: `**Leibesübungen der Germanen**
+- Zweckgebunden: Kampf und Jagd (Werfen, Laufen, Springen, Reiten, Schwimmen, Fechten)
+- Tacitus (röm. Kaiser) berichtete von Schwerterzänzen und Wettschwimmen im Rhein
+- 4 Quellengebiete: Dingliche Quellen, Römerberichte, Heldenepen (Nibelungenlied), Nordische Literatur (Edda)
+
+**Leibesübungen der Römer**
+Militärisch ausgerichtet – Mut, Entschlossenheit, Härte, Ausdauer, Kraft
+
+**Drei Bereiche**
+- **Privater Sport:** Ballspiel, Badekultur, Jagd
+- **Wehrsport:** Marschieren, Fechten, Reiten, Speerwurf
+- **Öffentliches Schauspiel (spectacula):** Wagenrennen, Gladiatorenkämpfe (munus gladiatorium), Tierspiele (venationes)
+
+**Circus Maximus:** 200.000 Zuschauer; Bahn 600m × 120m; 7 Runden à 1.200m (spina = Trennmauer)
+
+**Sport im Mittelalter**
+- **Bäuerliche Leibesübungen:** Tänze, Laufen, Springen, Kegeln
+- **Ritterliche Leibesübungen:** Turniere, Tjost (Einzelkampf), Buhurt (Gruppenkampf)
+- **Sieben Behendigkeiten:** Reiten, Schwimmen, Schießen, Klettern, Turnieren/Tjostieren, Ringen/Fechten, Hofieren
+- Rüxner Turnierbuch (Simmern 1532): 36 Turniere zwischen 938 und 1487 n.Chr.
+- Größtes Ritterturnier: Mainzer Hoffest 1184 (40.000 Zuschauer, 1.000 Teilnehmer)
+- Fairness = Chancengleichheit: „Sauhieb" (vom Pferd auf liegenden Gegner) galt als unehrenhaft
+
+**Sport im Humanismus (1400–1600)**
+- Erstes großes Sportbuch: „De arte gymnastica" (1569) von Hieronymus Mercurialis (6 Bände, 30 Auflagen)
+- Verbreitung von Paume-Spiel (Vorläufer Tennis), Ballspielen, Fechten
+- England: Golf, Hockey, Cricket, Fußball bereits bekannt` },
+      ]
+    },
+    {
+      id: "anatomie", emoji: "🦴", name: "Anatomie", color: "#DC2626", bg: "#FEE2E2",
+      topics: [
+        { title: "Knochen & Gelenke", content: `**Das Skelett**
+Ca. 206 Knochen – Stütz-, Schutz- und Bewegungsfunktion.
+
+**Gelenkarten**
+- **Kugelgelenk** (Schulter, Hüfte): Bewegung in alle Richtungen, 3 Achsen
+- **Scharniergelenk** (Ellenbogen, Knie): Beugung und Streckung, 1 Achse
+- **Sattelgelenk** (Daumen): 2 Bewegungsachsen
+- **Drehgelenk** (Elle/Speiche): Rotation
+
+**Wichtige Gelenke für Baseball**
+- **Schultergelenk:** Kugelgelenk – maximale Beweglichkeit beim Werfen; größtes Verletzungsrisiko
+- **Ellenbogengelenk:** Scharniergelenk – Streckung beim Wurfausklingen
+- **Handgelenk:** Streckung/Beugung und Rotation für Spin des Balls` },
+
+        { title: "Muskulatur", content: `**Muskelarten**
+- **Skelettmuskulatur** (quergestreift): Willkürlich steuerbar, für Bewegung
+- **Herzmuskel:** Unwillkürlich, quergestreift
+- **Glatte Muskulatur:** Unwillkürlich (Organe, Blutgefäße)
+
+**Antagonistenprinzip**
+Jede Bewegung hat Agonist (Beweger) und Antagonist (Gegenspieler).
+Beispiel: Bizeps (beugt Arm) ↔ Trizeps (streckt Arm)
+
+**Rotatorenmanschette (Schulter) – KRITISCH für Baseball**
+Besteht aus 4 Muskeln: Supraspinatus, Infraspinatus, Teres minor, Subscapularis
+→ Häufigste Verletzungsquelle bei Pitchern!
+
+**Wichtige Muskelgruppen**
+- **Rumpfmuskulatur (Core):** Kraftübertragung von Beinen zu Arm
+- **Unterarmmuskulatur:** Griff und Spin beim Pitching
+- **Beinmuskulatur:** Basis für Schlagkraft und Sprintleistung
+
+**Muskelkontraktion**
+- **Konzentrisch:** Muskel verkürzt sich (Kraft erzeugen)
+- **Exzentrisch:** Muskel verlängert sich unter Spannung (bremsen)
+- **Isometrisch:** Keine Längenveränderung (halten)` },
+
+        { title: "Energiebereitstellung", content: `**3 Energiesysteme**
+
+**1. Alaktazides System (ATP-CP)**
+- Dauer: bis 10 Sekunden
+- Ohne Sauerstoff, ohne Laktat; sehr schnell verfügbar
+- Baseball-Relevanz: Sprint zum Base, Pitch, Schlag
+
+**2. Laktazides System (Glykolyse)**
+- Dauer: 10 Sek. bis ca. 2 Minuten
+- Ohne Sauerstoff, mit Laktatbildung
+- Baseball-Relevanz: Kurze intensive Phasen
+
+**3. Aerobe System (Oxidation)**
+- Dauer: ab ca. 2 Minuten
+- Mit Sauerstoff; langsam aber sehr lang verfügbar
+- Baseball-Relevanz: Grundfitness, Erholung zwischen Innings
+
+**Merke:** Baseball = hochintensiv-kurz → primär alaktazides System. Ausdauer wichtig für Erholung!` },
+      ]
+    },
+    {
+      id: "trainingswissenschaft", emoji: "⚙️", name: "Trainingswissenschaft", color: "#059669", bg: "#D1FAE5",
+      topics: [
+        { title: "Trainingssteuerung & Belastung", content: `**5 Belastungsparameter (DIDUF)**
+- **D**auer: Wie lange dauert eine Belastung?
+- **I**ntensität: Wie hoch? (% der Maximalleistung)
+- **D**ichte: Verhältnis Belastung zu Erholung
+- **U**mfang: Gesamtvolumen der Trainingseinheit
+- **F**requenz: Wie oft pro Woche?
+
+**Superkompensation**
+Nach Belastung → Erschöpfung → Regeneration → Wiederherstellung auf HÖHEREM Niveau
+→ Nur wenn richtig belastet UND ausreichend regeneriert wird!
+
+**5 Trainingsgesetze**
+1. Gesetz der Superkompensation
+2. Gesetz des optimalen Belastungs-Erholungs-Verhältnisses
+3. Gesetz der Umkehrbarkeit (ohne Training → Rückgang)
+4. Gesetz der progressiven Belastung (stetige Steigerung nötig)
+5. Gesetz der Individualität (jeder Sportler reagiert anders)
+
+**Periodisierung**
+- Makrozyklus (z.B. 1 Jahr / Saison)
+- Mesozyklus (z.B. 4–6 Wochen)
+- Mikrozyklus (1 Woche)` },
+
+        { title: "Motorische Grundeigenschaften", content: `**Die 5 motorischen Grundeigenschaften**
+
+**1. Kraft**
+- Maximalkraft, Schnellkraft, Kraftausdauer
+- Baseball: Schlagkraft, Wurfkraft
+
+**2. Ausdauer**
+- Allgemeine aerobe Ausdauer (Grundlage)
+- Spielausdauer (Erholung zwischen Aktionen)
+
+**3. Schnelligkeit**
+- Reaktionsschnelligkeit (auf Pitch reagieren)
+- Aktionsschnelligkeit (Sprint zum Base)
+- Zyklisch vs. azyklisch
+
+**4. Beweglichkeit**
+- Aktiv (Muskelkraft) vs. Passiv (Schwerkraft/Geräte)
+- Baseball: Schulter-/Hüftbeweglichkeit für Pitching
+
+**5. Koordination**
+- Hand-Auge-Koordination (Schlagen, Fangen)
+- Rhythmisierungsfähigkeit
+- Gleichgewichtsfähigkeit
+- Differenzierungsfähigkeit (feine Bewegungskontrolle beim Pitch)
+
+**7 Koordinative Fähigkeiten nach Hirtz**
+Reaktion | Rhythmus | Gleichgewicht | Orientierung | Differenzierung | Kopplung | Umstellung` },
+
+        { title: "Warm-Up & Cool-Down", content: `**RAMP-Prinzip (Warm-Up)**
+- **R**aise: Puls und Temperatur erhöhen (5–10 Min. leichtes Laufen)
+- **A**ctivate: Aktivierung relevanter Muskeln (z.B. Rotatorenmanschette)
+- **M**obilise: Beweglichkeit der beteiligten Gelenke
+- **P**otentiate: Sportspezifische Bewegungen (Catch Progression, Tee-Schläge)
+
+**Physiologische Warm-Up-Ziele**
+- Körperkerntemperatur erhöhen (+1–2°C)
+- Muskel-/Sehnenelastizität steigern
+- Synovialflüssigkeit in Gelenken aktivieren
+- Mentale Vorbereitung
+
+**Baseball-spezifisches Warm-Up**
+- Arm circles (Schultergelenk vorbereiten)
+- Band-Übungen Rotatorenmanschette
+- Catch Progression: 10m → 20m → 40m → maximale Distanz
+- Batting tee-Schläge als Technikvorbereitung
+
+**Cool-Down**
+- Statisches Dehnen (20–30 sec je Muskelgruppe)
+- Laktat abbauen durch leichte aerobe Aktivität
+- Parasympathikus aktivieren → Regeneration einleiten
+- Langfristige Verletzungsprophylaxe` },
+      ]
+    },
+    {
+      id: "motorischesLernen", emoji: "🧠", name: "Motorisches Lernen", color: "#D97706", bg: "#FEF3C7",
+      topics: [
+        { title: "Phasen des motorischen Lernens", content: `**3 Phasen nach Meinel/Schnabel**
+
+**Phase 1: Grobkoordination (Aneignungsphase)**
+- Erste ungenaue Bewegungsausführung
+- Viele Fehler, hohe Konzentration nötig
+- Hohe Aktivierung vieler Muskeln (Koaktivierung)
+- Trainer: Demonstration + einfache Erklärung, Erfolgserlebnisse schaffen
+
+**Phase 2: Feinkoordination (Verfestigungsphase)**
+- Bewegung wird flüssiger und präziser
+- Weniger Fehler, aber noch nicht stabil unter Druck
+- Beginn der Automatisierung
+- Trainer: Korrektives Feedback, Variationen einführen
+
+**Phase 3: Stabilisierung & Automatisierung**
+- Bewegung läuft automatisch ab
+- Wenig Konzentration nötig → freie Kapazität für Taktik
+- Stabil auch unter Wettkampfdruck
+- Trainer: Drucksituationen simulieren, wettkampfnahe Bedingungen
+
+**Merke:** Baseball-Techniken (Pitching, Batting, Fielding) müssen bis zur Automatisierung trainiert werden, damit im Spiel taktisches Denken möglich ist!` },
+
+        { title: "Lernmethoden & Feedback", content: `**Übungsformen im Baseball**
+- **Drill:** Isolierte Wiederholung einer Teilbewegung (z.B. nur Arm-Action beim Pitching)
+- **Whole-Part-Whole:** Gesamtbewegung → Teilbewegung üben → wieder Gesamtbewegung
+- **Variable Übung:** Verschiedene Variationen (Fastball/Changeup/Curveball)
+
+**Geschlossene vs. Offene Übungen**
+- Geschlossen: Gleichbleibende Bedingungen (Tee-Batting, Pitching Mechanics isoliert)
+- Offen: Wechselnde Bedingungen (Live-Pitching, Spielsituationen)
+
+**Feedback-Arten**
+- **Intrinsisch:** Eigenes Körpergefühl (propriozeptiv)
+- **Extrinsisch/Augmented:**
+- KR (Knowledge of Results): Ergebnis-Feedback (Ball hat Strike-Zone verfehlt)
+- KP (Knowledge of Performance): Bewegungsqualität (Arm-Aktion zu früh)
+
+**Coaching-Hinweise**
+- Anfänger: KP-Feedback (Bewegungskorrektur), einfach und konkret
+- Fortgeschrittene: KR-Feedback, mehr Selbstreflexion fördern
+- Feedback-Häufigkeit reduzieren → selbstständiges Lernen fördern!` },
+
+        { title: "Motivation & Mentales Training", content: `**Motivationsarten**
+- **Intrinsisch:** Freude an der Sache selbst → langfristig stabiler; zu fördern!
+- **Extrinsisch:** Belohnung, Druck von außen → kann intrinsische untergraben (Korrumpierungseffekt)
+
+**Selbstbestimmungstheorie (Deci & Ryan)**
+3 Grundbedürfnisse für intrinsische Motivation:
+1. **Kompetenzerleben** (Ich schaffe das!)
+2. **Autonomieerleben** (Ich entscheide mit!)
+3. **Soziale Eingebundenheit** (Ich gehöre dazu!)
+
+**Mentales Training**
+- **Visualisierung:** Bewegung im Kopf „durchführen"
+- **Self-Talk:** Positive Affirmationen (besonders für Pitcher wichtig!)
+- **Atemtechniken:** Arousal-Kontrolle vor wichtigen Spielzügen
+
+**Flow-Erleben (Csikszentmihalyi)**
+Optimale Balance aus Anforderung und Fähigkeit
+→ Aufgaben müssen herausfordernd ABER erreichbar sein!
+
+**Yerkes-Dodson-Kurve**
+Umgekehrtes U: Zu wenig ODER zu viel Aktivierung → schlechtere Leistung
+Optimales Arousal-Niveau ist sportartspezifisch!` },
+      ]
+    },
+    {
+      id: "gesundheit", emoji: "💊", name: "Gesundheit im Sport", color: "#0891B2", bg: "#CFFAFE",
+      topics: [
+        { title: "Sportverletzungen & Prävention", content: `**Häufige Baseball-Verletzungen**
+
+**Schulter**
+- Rotatorenmanschetten-Riss (Pitcher am häufigsten)
+- SLAP-Läsion (Schulterlippe)
+- Impingement-Syndrom
+→ Prävention: Stärkung Rotatorenmanschette, Wurfvolumen-Management (Pitch Count!)
+
+**Ellenbogen**
+- UCL-Riss (Ulnar Collateral Ligament) → „Tommy John Surgery"
+- Epikondylitis (Tennisellenbogen)
+→ Prävention: Mechanikscheck, Überlastung vermeiden
+
+**Untere Extremitäten**
+- Muskelfaserriss Oberschenkel (Sprint zu Base)
+- Kreuzbandverletzung (bei Slidings)
+
+**PRICE-Schema (Erstversorgung)**
+- **P**rotection (Schutz vor weiterer Verletzung)
+- **R**est (Ruhe, Belastung stoppen)
+- **I**ce (Kühlen, 20 Min., nicht direkt auf Haut)
+- **C**ompression (Kompressionsverband)
+- **E**levation (Hochlagern)
+
+**Trainer-Pflichten**
+- Verletzungsprotokoll führen
+- Arztentscheid bei Verdacht auf ernsthafte Verletzung abwarten
+- Schrittweise Return-to-Play protokollieren
+- Pitch Count strikt einhalten!` },
+
+        { title: "Erste Hilfe im Sport", content: `**Reanimation (CPR)**
+1. Ansprechen und Schulter schütteln
+2. Hilfe rufen (Notruf 112)
+3. 30 Herzdruckmassagen (5–6 cm tief, 100–120/min)
+4. 2 Atemspenden
+5. AED sobald verfügbar einsetzen
+
+**Hitzschlag / Hitzeerschöpfung**
+- Symptome: Verwirrtheit, kein Schwitzen, sehr heiße Haut
+- Maßnahme: Sofort kühlen, 112 rufen, in Schatten bringen
+
+**Bewusstlosigkeit**
+- Atmung kontrollieren
+- Stabile Seitenlage
+- Atemweg freihalten
+- Notruf 112
+
+**Epileptischer Anfall**
+- Verletzungen verhindern (NICHTS in den Mund!)
+- Nach Anfall stabile Seitenlage
+- Arzt informieren, Dauer dokumentieren
+
+**Trainer-Pflichten**
+- Verbandskasten griffbereit und vollständig
+- Notrufnummern bekannt
+- Erste-Hilfe-Kurs aktuell halten (alle 2 Jahre)
+- Spieler mit bekannten Erkrankungen im Blick (Asthma, Allergien, Diabetes)` },
+
+        { title: "Doping & Anti-Doping", content: `**WADA (World Anti-Doping Agency)**
+Erstellt jährlich die verbotene Liste (Prohibited List).
+
+**Verbotene Substanzen (Auswahl)**
+- Anabolika (anabol-androgene Steroide)
+- EPO (Erythropoetin)
+- Wachstumshormone (HGH)
+- Stimulanzien (Amphetamine)
+- Beta-Blocker (in bestimmten Sportarten)
+- Blutdoping / Bluttransfusionen
+
+**Konsequenzen**
+- 4 Jahre Sperre (erste Verletzung mit Vorsatz)
+- 2 Jahre Sperre (erste Verletzung ohne Vorsatz)
+- Lebenslange Sperre bei wiederholter Verletzung
+
+**Trainer-Verantwortung**
+- Keine verbotenen Substanzen empfehlen!
+- Spieler über Supplementrisiken informieren (Kontamination!)
+- Sorgfaltspflicht: Trainer können mitbestraft werden!
+- NADA Deutschland als Anlaufstelle
+
+**Erlaubte Supplements**
+- Koffein, Kreatin, Protein, Vitamine – ABER: immer Kontaminationsrisiko!
+→ Nur zertifizierte Produkte (Cologne List, Informed Sport)!` },
+      ]
+    },
+    {
+      id: "ernaehrung", emoji: "🥗", name: "Ernährung", color: "#16a34a", bg: "#dcfce7",
+      topics: [
+        { title: "Makronährstoffe & Energiebalance", content: `**3 Makronährstoffe**
+
+**Kohlenhydrate (KH)** – 4 kcal/g
+- Primärer Treibstoff für Hochintensivleistung
+- Gespeichert als Glykogen (Leber ~100g, Muskeln ~300–500g)
+- Empfehlung Sportler: 5–7 g/kg KG/Tag
+- Quellen: Vollkorn, Haferflocken, Reis, Pasta, Obst
+
+**Proteine (Eiweiß)** – 4 kcal/g
+- Muskelaufbau und -reparatur
+- Empfehlung Kraft-/Schnellkraftsportler: 1,6–2,0 g/kg KG/Tag
+- Quellen: Fleisch, Fisch, Eier, Hülsenfrüchte, Milchprodukte
+
+**Fette** – 9 kcal/g
+- Hormonproduktion, fettlösliche Vitamine (A, D, E, K)
+- Empfehlung: 25–30% der Gesamtenergie
+- Quellen: Nüsse, Avocado, Olivenöl, fetter Fisch
+
+**Energiebilanz**
+- Positiv → Gewichtszunahme
+- Negativ → Gewichtsabnahme
+- Sportler: ausgeglichene oder leicht positive Bilanz für Aufbau` },
+
+        { title: "Ernährung rund ums Training", content: `**Pre-Training (2–3 Stunden vorher)**
+- Kohlenhydratreich, fett- und ballaststoffarm
+- Moderate Proteinmenge
+- Ausreichend trinken
+- Beispiel: Haferflocken mit Banane und Joghurt
+
+**Direkt vor dem Spiel (30–60 Min.)**
+- Leicht verdauliche Kohlenhydrate
+- Kein schweres Essen!
+- Beispiel: Energieriegel, Banane, Sportgetränk
+
+**Während der Aktivität**
+- Bei >60 Min. Aktivität: 30–60 g KH/Stunde
+- Flüssigkeit: 400–800 ml/h je nach Schwitzen und Hitze
+
+**Post-Training (Recovery-Fenster 0–30 Min.)**
+- 3:1 KH zu Protein (Glykogen auffüllen + Muskelreparatur)
+- 20–40 g Protein
+- Beispiel: Schokoladenmilch, Hähnchen mit Reis, Recovery-Shake
+
+**Baseball-spezifisch**
+- Doppelheader / lange Spieltage → Snacks zwischen Innings wichtig
+- Sommer/Hitze → Elektrolyte (Natrium, Kalium) beachten
+- Pitcher: Energiestatus beeinflusst Kontrollpräzision direkt!` },
+
+        { title: "Hydration & Supplements", content: `**Hydration**
+- Dehydration ab 2% Körpergewichtsverlust → messbarerLeistungsabfall
+- Durst ist ein SPÄTER Indikator!
+
+**Empfehlungen**
+- Täglich: 30–40 ml/kg KG
+- Vor Training: 500 ml, 2h vorher
+- Während: 150–250 ml alle 15–20 Min.
+- Nach Training: 1,5× der verlorenen Menge
+
+**Urinfarbe als Indikator**
+- Hell-gelb = gut hydriert ✓
+- Dunkelgelb = dehydriert ✗
+- Braun = starke Dehydrierung → STOPP Training!
+
+**Evidenzbasierte Supplements**
+
+**Kreatin (Kreatinmonohydrat)** ✓ Gut belegt
+- Erhöht Schnellkraft und Sprintleistung
+- Ladephase: 20 g/Tag (4×5g) für 5 Tage, dann 3–5 g/Tag Erhaltung
+
+**Koffein** ✓ Gut belegt
+- 3–6 mg/kg KG, 30–60 Min. vor Sport
+- Verbessert Konzentration, Reaktion und Ausdauer
+
+**Protein-Supplements** ✓ Sinnvoll wenn Nahrungsbedarf nicht gedeckt
+- Whey schnell verfügbar → post-training ideal
+
+**ACHTUNG Kontaminationsrisiko!**
+→ Nur zertifizierte Produkte (Cologne List, Informed Sport)!` },
+      ]
+    },
+    {
+      id: "aufsichtspflicht", emoji: "⚖️", name: "Aufsichtspflicht", color: "#BE185D", bg: "#FCE7F3",
+      topics: [
+        { title: "Rechtliche Grundlagen", content: `**§832 BGB – Haftung des Aufsichtspflichtigen**
+Aufsichtspflichtige haften für Schäden, die Aufsichtsbedürftige verursachen.
+
+**Aufsichtspflichtige im Sport**
+- Vereinstrainer und Übungsleiter
+- Eltern (können Aufsichtspflicht an Verein übertragen)
+
+**Maßstab der Aufsicht**
+„Was ist erforderlich und zumutbar, um Schäden zu verhüten?"
+
+**Faktoren für die Aufsichtsintensität**
+- **Alter:** Jüngere Kinder brauchen engere Aufsicht
+- **Gefahrensituation:** Höheres Risiko → engere Aufsicht
+- **Erfahrung der Gruppe:** Bekannte Probleme → mehr Aufmerksamkeit
+- **Sportart:** Baseball = Spielgeräte (Bat, Hardball!) → erhöhte Aufmerksamkeit!
+
+**Entlastungsbeweis (§832 Abs.1 S.2)**
+Trainer ist NICHT haftbar, wenn er beweist:
+1. Er hat Aufsicht ordnungsgemäß geführt, ODER
+2. Der Schaden wäre auch bei gehöriger Aufsicht entstanden` },
+
+        { title: "Aufsicht im Trainingsalltag", content: `**Vor dem Training**
+- Spielfeld auf Gefahren prüfen (kaputte Käfige, herumliegende Bats/Bälle!)
+- Ausrüstung prüfen (Helme mit Riss → SOFORT aussortieren)
+- Abwesenheiten und Verletzungen der Spieler erfassen
+- Aufwärmen IMMER vor Wurfübungen vorschreiben!
+
+**Während des Trainings**
+- Nie unbeaufsichtigt Bats und Bälle bei Kindern lassen
+- Batting Practice: Nur EIN Batter im Cage, alle anderen HINTER dem Schutzgitter
+- Beim Pitching: Klarer Ablauf, kein Durchlaufen hinter dem Mound
+- Situationsüberblick behalten – nicht nur einzelne Spieler fixieren
+
+**Besondere Gefahrenpunkte Baseball**
+- Hardball → Schutzhelm PFLICHT beim Batting und auf den Bases
+- Wurfarm-Überlastung bei Jugendlichen → Pitch Count einhalten!
+- Rutsch-/Slide-Übungen → Knie- und Knöchelschutz empfehlen
+
+**Dokumentation (wichtig für Entlastungsbeweis!)**
+- Verletzungsprotokoll führen
+- Trainingsplan mit Datum aufbewahren
+- Erreichbarkeit der Eltern bei Auswärtsspielen sicherstellen` },
+
+        { title: "Jugendschutz", content: `**Relevante Gesetze**
+- §832 BGB (Haftung Aufsichtspflichtiger)
+- SGB VIII (Kinder- und Jugendhilfe)
+- Bundeskinderschutzgesetz
+- UN-Kinderrechtskonvention
+
+**Altersgrenzen**
+- Unter 13 Jahre: Kein reguläres Arbeiten
+- 13–15 Jahre: Eingeschränkt, mit Elterngenehmigung
+- 16–18 Jahre: Jugendliche – besondere Schutzvorschriften
+- Ab 18: Erwachsene
+
+**Kindeswohlgefährdung – Trainerhandeln**
+1. Auffälligkeiten dokumentieren
+2. Vertrauensperson / Vorgesetzten informieren
+3. Im Zweifel Jugendamt einschalten
+
+**Grenzen im Training**
+- Keine körperlichen Strafen
+- Keine psychische Demütigung oder Erniedrigung
+- Kein Zwang zur Überlastung
+
+**Prävention sexualisierter Gewalt**
+- Erweitertes Führungszeugnis für alle Trainer mit Minderjährigen
+- Kinderschutzkonzept des Vereins kennen und leben
+- Vier-Augen-Prinzip bei sensiblen Situationen (Umkleide, Einzelbetreuung)` },
+      ]
+    },
+    {
+      id: "vereinsrecht", emoji: "🏢", name: "Vereinsrecht", color: "#6D28D9", bg: "#EDE9FE",
+      topics: [
+        { title: "Vereinsgrundlagen (e.V.)", content: `**Rechtliche Grundlage:** §§21–79 BGB
+
+**Eingetragener Verein (e.V.)**
+- Juristische Person → kann klagen und verklagt werden
+- Haftung: Grundsätzlich der Verein, nicht einzelne Mitglieder persönlich
+- Mindestmitglieder: 7 bei Gründung
+
+**Vereinsorgane**
+1. **Mitgliederversammlung** (höchstes Organ): Wählt Vorstand, beschließt Satzung
+2. **Vorstand** (§26 BGB): Vertritt Verein nach außen; mindestens 1 Person
+3. **Weitere Organe** lt. Satzung (Beirat, Kassenprüfer, Ausschüsse)
+
+**Satzung – Pflichtinhalte**
+- Name und Sitz des Vereins
+- Zweck des Vereins
+- Eintritt/Austritt der Mitglieder
+- Beitragsregelung
+- Berufung der Mitgliederversammlung
+- Vorstandszusammensetzung
+
+**Gemeinnützigkeit (§52 AO)**
+- Förderung der Allgemeinheit; Sport anerkannter Zweck
+- Vorteile: Steuerbefreiung, Spendenabzugsfähigkeit
+
+**Haftung des Trainers**
+- Im Rahmen des Vereins: Persönliche Haftung nur bei Vorsatz oder grober Fahrlässigkeit
+- WICHTIG: Im Dienst des Vereins handeln → Vereinshaftpflichtversicherung greift!` },
+      ]
+    },
+    {
+      id: "baseball", emoji: "⚾", name: "Baseball Technik & Taktik", color: "#1D4ED8", bg: "#DBEAFE",
+      topics: [
+        { title: "DBA Relay Plays & Cutoffs", content: `**Grundprinzip**
+Outfield → Relay Man → Zielbase
+
+**Cut-Off-Man Positionierung**
+- Shortstop und 2nd Baseman sind die primären Relay-Spieler
+- In direkter Linie Ball → Zielbase positionieren
+- So nah wie nötig (kein Arm strapazieren), so weit wie möglich
+
+**Kommunikation**
+- Catcher / Infielder geben Anweisung: „CUT!" oder „HOME!" oder „THIRD!"
+- Outfielder werfen auf den nächsten Spieler (nicht auf die Base!)
+
+**Situationen nach Outfield-Position**
+- Single ins RF → 1B als Cut-Off für Home
+- Single ins LF → 3B als Cut-Off für Home
+- Extra-Base-Hit → SS oder 2B als Relay aus dem Outfield
+
+**Übungsaufbau Relay-Play**
+1. Outfielder → 2B (Relay) → Home (statisch)
+2. Outfielder → SS (Relay) → 3B (statisch)
+3. Mit Druck: Baserunner laufen gleichzeitig (kompetitiv)` },
+
+        { title: "Pitching Mechanik", content: `**6 Phasen der Wurf-Mechanik**
+1. Wind-Up: Gewicht auf Pivot-Fuß, Körperdrehung
+2. Stride: Schrittbein nach vorne, Hüftöffnung beginnt
+3. Arm Cocking (früh): Wurfarm geht zurück und nach oben
+4. Arm Cocking (spät): Schulter maximal außenrotiert – GRÖSSTE BELASTUNG!
+5. Acceleration: Beschleunigung zum Releasing Point
+6. Deceleration / Follow-Through: KRITISCH für Verletzungsprävention!
+
+**Häufige Fehler**
+- Zu frühe Hüftöffnung → Kontrollverlust + erhöhte Schulterbelastung
+- Fehlende Follow-Through → UCL-Risiko am Ellenbogen
+- „Elbow drop" (Ellenbogen unter Schulterniveau) → Überbelastung
+
+**Pitch Count (Empfehlungen für Junioren)**
+- U11: max 85 Pitches/Spiel
+- U13: max 95 Pitches/Spiel
+- U15: max 95 Pitches/Spiel
+- U17: max 105 Pitches/Spiel
+→ Pflichtruhetage je nach Anzahl Pitches einhalten!
+
+**Grundpitches**
+- Fastball (4-seam Kontrolle, 2-seam Bewegung)
+- Changeup (Geschwindigkeitsdifferenz, gleiche Mechanik!)
+- Curveball: ERST ab 15 Jahren empfohlen (Wachstumsfugen!)` },
+
+        { title: "Batting Grundlagen", content: `**Stance (Ausgangsposition)**
+- Schulterbreiter Stand, leicht gebeugte Knie
+- Gewicht leicht auf hinterem Fuß (60/40)
+- Hände hinter hinterer Schulter, Bat-Winkel ca. 45°
+- Entspannte Schultern, Kopf zur Pitchingzone gerichtet
+
+**Load & Stride**
+- Load: Gewichtsverlagerung nach hinten (Timing aufbauen)
+- Stride: Kleiner Schritt nach vorne (15–20 cm), leicht und kontrolliert
+- Stride vor Pitch-Entscheidung → Commitment danach!
+
+**Hip Rotation**
+- Hüfte dreht ZUERST, dann Schultern, dann Arme
+- „Hüfte führt, Bat folgt"
+
+**Contact Zone nach Pitchlage**
+- Pull-Pitch (innen): Früher Kontakt, vorne
+- Middle-Pitch: Kontakt über der Platte
+- Oppo-Pitch (außen): Später Kontakt, hinten
+
+**Trainingsaufbau für Anfänger**
+1. Tee-Work (Repetierbewegung, keine Variablen)
+2. Soft-Toss (leichte Timing-Variante)
+3. Front-Toss (reale Distanz, niedrige Geschwindigkeit)
+4. Live-Pitching (vollständige Spielbedingungen)` },
+      ]
+    },
+  ],
+
+  flashcards: [
+    { q: "Was bedeutet Ekecheiria?", a: "Götterfrieden / Waffenstillstand während der antiken olympischen Spiele – freies Geleit für alle Teilnehmer" },
+    { q: "Welche 4 panhellenischen Spiele gab es?", a: "1. Olympia (Zeus), 2. Delphi (Apollon), 3. Nemea (Zeus), 4. Isthmia (Poseidon)" },
+    { q: "Wann fand die erste belegte Olympiade statt?", a: "776 v. Chr. in Olympia – erste belegte Siegerliste des Stadionlaufs" },
+    { q: "Was ist das Tetradensystem der Antike?", a: "4-Tage-Trainingssystem: Tag 1 kurz-hoch, Tag 2 Maximum (Wettkampfsimulation), Tag 3 Entspannung, Tag 4 mittel" },
+    { q: "Wer gilt als 'Turnvater' und was gründete er?", a: "Friedrich Ludwig Jahn (1778–1852) – gründete 1811 den ersten Turnplatz in Berlin-Hasenheide; erfand 1812 Barren und Reck" },
+    { q: "Wann und durch wen wurden die modernen OS wiederbegründet?", a: "Pierre de Coubertin – Kongress 23.6.1894 in Paris, erste Spiele 1896 in Athen (300 Sportler, 13 Nationen)" },
+    { q: "Was ist Superkompensation?", a: "Nach Belastung → Erschöpfung → Regeneration → Wiederherstellung auf HÖHEREM Niveau als vorher" },
+    { q: "Nenne die 5 motorischen Grundeigenschaften", a: "Kraft – Ausdauer – Schnelligkeit – Beweglichkeit – Koordination" },
+    { q: "Was regelt §832 BGB?", a: "Haftung des Aufsichtspflichtigen für Schäden, die Aufsichtsbedürftige verursachen" },
+    { q: "Nenne das PRICE-Schema", a: "Protection – Rest – Ice – Compression – Elevation (Erstversorgung bei Verletzungen)" },
+    { q: "Wie lautet die Proteinempfehlung für Kraft-/Schnellkraftsportler?", a: "1,6–2,0 g Protein pro kg Körpergewicht pro Tag" },
+    { q: "Was sind die 3 Energiesysteme?", a: "1. Alaktazid (ATP-CP, bis 10 Sek.), 2. Laktazid (bis 2 Min.), 3. Aerob (ab 2 Min.)" },
+    { q: "Was sind die 3 Phasen des motorischen Lernens nach Meinel/Schnabel?", a: "1. Grobkoordination (Aneignung), 2. Feinkoordination (Verfestigung), 3. Stabilisierung/Automatisierung" },
+    { q: "Was ist der Unterschied zwischen KR und KP Feedback?", a: "KR = Knowledge of Results (Ergebnis-Feedback), KP = Knowledge of Performance (Bewegungsqualitäts-Feedback)" },
+    { q: "Wann war die Turnsperre und warum?", a: "1819–1842 durch Karlsbader Beschlüsse; ausgelöst durch Wartburgfest und Ermordung von Kotzebue" },
+    { q: "Was ist Guts Muths Hauptwerk und wann erschien es?", a: "'Gymnastik für die Jugend' (1793) – erstes Lehrbuch der Körperkultur; er gilt als 'Erz- und Großvater' des deutschen Schulturnens" },
+    { q: "Was ist die Rotatorenmanschette und welche Muskeln gehören dazu?", a: "Schulter-Stabilisatoren beim Pitching: Supraspinatus, Infraspinatus, Teres minor, Subscapularis" },
+    { q: "Was bedeutet Hermeneutik in der Sportgeschichte?", a: "Wissenschaftstheoretische Methode des sporthistorischen Erkennens" },
+    { q: "Wer war Basedow und was gründete er?", a: "Johann Bernhard Basedow (1724–1790) – Begründer der Philanthropen, gründete 1774 das erste Philanthropinum in Dessau" },
+    { q: "Welche 5 Merkmale der olympischen Erziehung definierte Coubertin?", a: "1. Harmonische Ausbildung, 2. Vervollkommnung durch Leistung, 3. Fairplay-Bindung, 4. Friedensgedanke, 5. Emanzipation" },
+  ]
+};
+
+// State
+let currentView = 'home';
+let currentModule = null;
+let currentTopic = null;
+let fcCards = [...DATA.flashcards];
+let fcIndex = 0;
+let fcRevealed = false;
+
+// Navigation
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  currentView = id;
+  window.scrollTo(0, 0);
+
+  const back = document.getElementById('nav-back');
+  const title = document.getElementById('nav-title');
+
+  if (id === 'home') {
+    back.style.display = 'none';
+    title.textContent = '⚾ Trainer C Lizenz';
+  } else if (id === 'module') {
+    back.style.display = 'inline-block';
+    title.textContent = currentModule.emoji + ' ' + currentModule.name;
+  } else if (id === 'topic') {
+    back.style.display = 'inline-block';
+    title.textContent = currentTopic.title;
+  } else if (id === 'flashcards') {
+    back.style.display = 'inline-block';
+    title.textContent = '🃏 Karteikarten';
+  }
+}
+
+function goBack() {
+  if (currentView === 'topic') showView('module');
+  else showView('home');
+}
+
+// Render modules grid
+function renderHome() {
+  const grid = document.getElementById('modules-grid');
+  grid.innerHTML = DATA.modules.map(m => `
+    <button class="module-card" onclick="openModule('${m.id}')" style="border-color:${m.color}20">
+      <div class="emoji">${m.emoji}</div>
+      <div class="mod-name" style="color:${m.color}">${m.name}</div>
+      <div class="mod-count">${m.topics.length} Themen</div>
+    </button>
+  `).join('');
+}
+
+function openModule(id) {
+  currentModule = DATA.modules.find(m => m.id === id);
+  const header = document.getElementById('module-header');
+  header.style.background = currentModule.bg;
+  header.style.borderLeft = '5px solid ' + currentModule.color;
+  document.getElementById('module-title').textContent = currentModule.emoji + ' ' + currentModule.name;
+  document.getElementById('module-desc').textContent = currentModule.topics.length + ' Lernthemen';
+
+  const list = document.getElementById('topic-list');
+  list.innerHTML = currentModule.topics.map((t, i) => `
+    <button class="topic-btn" onclick="openTopic(${i})" 
+      onmouseover="this.style.borderColor='${currentModule.color}'"
+      onmouseout="this.style.borderColor='#e5e1d8'">
+      ${t.title}
+      <span>→</span>
+    </button>
+  `).join('');
+  showView('module');
+}
+
+function openTopic(i) {
+  currentTopic = currentModule.topics[i];
+  document.getElementById('topic-title').textContent = currentTopic.title;
+  document.getElementById('topic-content').innerHTML = renderContent(currentTopic.content, currentModule.color);
+  showView('topic');
+}
+
+function renderContent(text, color) {
+  const blocks = text.split('\n\n');
+  return blocks.map(block => {
+    const lines = block.split('\n');
+    let html = '<div class="content-block">';
+    lines.forEach(line => {
+      if (!line.trim()) return;
+      const formatted = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      if (line.startsWith('**') && line.endsWith('**') && (line.match(/\*\*/g)||[]).length === 2) {
+        html += `<div class="content-h3" style="color:${color}">${line.slice(2,-2)}</div>`;
+      } else if (line.startsWith('- ')) {
+        html += `<div class="content-li"><span class="content-li-dot" style="color:${color}">•</span><span class="content-li-text">${formatted.slice(2)}</span></div>`;
+      } else {
+        html += `<p class="content-p">${formatted}</p>`;
+      }
+    });
+    html += '</div>';
+    return html;
+  }).join('');
+}
+
+// Flashcards
+function startFlashcards() {
+  shuffleCards();
+  showView('flashcards');
+}
+
+function shuffleCards() {
+  fcCards = [...DATA.flashcards].sort(() => Math.random() - 0.5);
+  fcIndex = 0;
+  fcRevealed = false;
+  updateCard();
+}
+
+function updateCard() {
+  const card = fcCards[fcIndex];
+  const el = document.getElementById('fc-card');
+  const label = document.getElementById('fc-label');
+  const text = document.getElementById('fc-text');
+  const hint = document.getElementById('fc-hint');
+  const counter = document.getElementById('fc-counter');
+  const progress = document.getElementById('fc-progress');
+
+  el.classList.toggle('revealed', fcRevealed);
+  label.textContent = fcRevealed ? 'Antwort' : 'Frage';
+  text.textContent = fcRevealed ? card.a : card.q;
+  text.className = 'fc-text ' + (fcRevealed ? 'answer' : 'question');
+  hint.textContent = fcRevealed ? 'Tippen um Frage zu sehen' : 'Tippen um Antwort zu sehen';
+  counter.textContent = (fcIndex + 1) + ' / ' + fcCards.length;
+  progress.style.width = ((fcIndex + 1) / fcCards.length * 100) + '%';
+}
+
+function toggleAnswer() {
+  fcRevealed = !fcRevealed;
+  updateCard();
+}
+
+function fcNav(dir) {
+  fcIndex = (fcIndex + dir + fcCards.length) % fcCards.length;
+  fcRevealed = false;
+  updateCard();
+}
+
+// Init
+renderHome();
+</script>
+</body>
+</html>
 
